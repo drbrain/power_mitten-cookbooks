@@ -1,5 +1,5 @@
 #
-# Cookbook Name:: worker
+# Cookbook Name:: node
 # Recipe:: default
 #
 # Copyright 2012, AT&T
@@ -7,7 +7,7 @@
 # All rights reserved - Do Not Redistribute
 #
 
-ruby_version = node['worker']['ruby_version']
+ruby_version = node['node']['ruby_version']
 
 ruby_build_ruby ruby_version
 
