@@ -1,0 +1,98 @@
+#!/bin/bash
+#
+# att-cloud_gauntlet startup script for the <%= @prog %> node
+
+### BEGIN INIT INFO
+# Provides: <%= @prog %>
+# Required-Start: $local_fs $network $remote_fs
+# Required-Stop: $local_fs $network $remote_fs
+# Should-Start: $named $time
+# Should-Stop: $named $time
+# Short-Description: Startup script for att-cloud_gauntlet <%= @prog %> node
+# Description: I'm too lazy to write a description about <%= @prog %>
+### END INIT INFO
+
+# Source function library
+. /etc/init.d/functions
+
+prog="<%= @prog %>"
+exec="<%= @ruby_path %>/$prog"
+
+[ -e /etc/sysconfig/$prog ] && . /etc/sysconfig/$prog
+
+pidfile=${PIDFILE-/var/run/$prog.pid}
+lockfile=${LOCKFILE-/var/lock/subsys/$prog}
+options=${OPTIONS-""}
+
+start() {
+    [ -x $exec ] || exit 5
+    echo -n $"Starting $prog: "
+    daemon $exec -P "$pidfile" $options
+    retval=$?
+    echo
+    [ $retval -eq 0 ] && touch $lockfile
+    return $retval
+}
+
+stop() {
+    echo -n $"Stopping $prog: "
+    killproc -p $pidfile $prog
+    retval=$?
+    echo
+    [ $retval -eq 0 ] && rm -f $lockfile
+    return $retval
+}
+
+restart () {
+    stop
+    start
+}
+
+reload() {
+    restart
+}
+
+force_reload() {
+    restart
+}
+
+rh_status() {
+    # run checks to determine if the service is running or use generic status
+    status -p $pidfile $prog
+}
+
+rh_status_q() {
+    rh_status >/dev/null 2>&1
+}
+
+case "$1" in
+    start)
+        rh_status_q && exit 0
+        $1
+        ;;
+    stop)
+        rh_status_q || exit 0
+        $1
+        ;;
+    restart)
+        $1
+        ;;
+    reload)
+        rh_status_q || exit 7
+        $1
+        ;;
+    force-reload)
+        force_reload
+        ;;
+    status)
+        rh_status
+        ;;
+    condrestart|try-restart)
+        rh_status_q || exit 0
+        restart
+        ;;
+    *)
+        echo $"Usage: $0 {start|stop|status|restart|condrestart|try-restart|reload|force-reload}"
+        exit 2
+esac
+exit $?

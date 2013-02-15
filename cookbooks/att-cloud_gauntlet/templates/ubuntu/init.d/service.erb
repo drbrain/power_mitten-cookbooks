@@ -1,0 +1,50 @@
+#! /bin/sh
+
+### BEGIN INIT INFO
+# Provides: <%= @prog %>
+# Required-Start: $all
+# Required-Stop:  $all
+# Default-Start:  2 3 4 5
+# Default-Stop:   1
+# Short-Description: Startup att-cloud_gauntlet <%= @prog %> node
+### END INIT INFO
+
+prog=<%= @prog %>
+pid_file=/var/run/$prog.pid
+command=<%= @ruby_path %>/bin/$prog
+
+. /lib/lsb/init-functions
+
+case "$1" in
+  start)
+    log_daemon_msg "Starting <%= @prog %> service" "<%= @prog %>"
+    start-stop-daemon --start --quiet --exec $command \
+                      --pidfile $pid_file --make-pidfile \
+                      --background --chuid ubuntu \
+                      -- <%= @extra_args %>
+    log_end_msg $?
+    ;;
+
+  stop)
+    log_daemon_msg "Stopping <%= @prog %> service" "<%= @prog %>"
+    start-stop-daemon --stop --quiet --oknodo --pidfile $pid_file
+    log_end_msg $?
+    rm -f $pid_file
+    ;;
+
+  restart)
+    $0 stop && sleep 2 && $0 start
+    ;;
+
+  status)
+    status_of_proc -p $pid_file "$command" $prog
+    exit $?
+    ;;
+
+  *)
+    echo "Usage: /etc/init.d/$prog {start|stop|restart|status}"
+    exit 1
+esac
+
+exit 0
+

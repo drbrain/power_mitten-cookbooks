@@ -1,0 +1,4 @@
+*.gem
+*.swp
+.DS_Store
+/nodes/75.*.json
