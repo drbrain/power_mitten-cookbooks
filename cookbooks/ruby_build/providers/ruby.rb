@@ -51,13 +51,14 @@ def perform_install
     prefix_path = @prefix_path  # bypass block scoping issue
     execute "ruby-build[#{rubie}]" do
       command   %{/usr/local/bin/ruby-build "#{rubie}" "#{prefix_path}"}
-      user      new_resource.user   if new_resource.user
-      group     new_resource.group  if new_resource.group
+      user        new_resource.user         if new_resource.user
+      group       new_resource.group        if new_resource.group
+      environment new_resource.environment  if new_resource.environment
 
       action    :nothing
     end.run_action(:run)
 
-    Chef::Log.debug("ruby_build_ruby[#{@rubie}] build time was " +
+    Chef::Log.info("ruby_build_ruby[#{@rubie}] build time was " +
       "#{(Time.now - install_start)/60.0} minutes")
     new_resource.updated_by_last_action(true)
   end
