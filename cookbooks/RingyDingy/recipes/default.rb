@@ -7,15 +7,9 @@
 # All rights reserved - Do Not Redistribute
 #
 
-cookbook_file '/tmp/RingyDingy.gem' do
-  source 'RingyDingy.gem'
-  mode 0644
-end
-
 gem_package 'RingyDingy' do
   gem_binary node['gem_path']
-  source '/tmp/RingyDingy.gem'
-  version '>= 0'
+  version '>= 1.3'
   action :upgrade
 end
 
