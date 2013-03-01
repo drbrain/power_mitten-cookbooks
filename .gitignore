@@ -1,4 +1,7 @@
 *.gem
 *.swp
 .DS_Store
+/config.yaml
 /nodes/[0-9]*.json
+/nodes/image.json
+/roles/image.json
