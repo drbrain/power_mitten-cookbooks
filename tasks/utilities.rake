@@ -1,23 +1,23 @@
 ##
-# Cooks +server+ using knife solo cook
+# Cooks +vm+ using knife solo cook
 
-def cook server
-  wait_for_server server
+def cook vm
+  wait_for_vm vm
 
-  with_floating_ip server do |address|
-    wait_for_ssh server, address
+  with_floating_ip vm do |address|
+    wait_for_ssh vm, address
 
     user = @configuration['image']['login_user']
 
     # This is knife stuff.  You can put any script after these lines
     run_knife %W[solo prepare #{user}@#{address}]
-    puts 'VM prepared on %s' % server.name
+    puts 'VM prepared on %s' % vm.name
 
 #    run_knife %W[cook -V --skip-syntax-check root@#{address} nodes/upgrade.json]
 #    puts 'chef upgraded to prerelease'
 
     run_knife %W[solo cook -V #{user}@#{address} nodes/image.json]
-    puts 'VM cooked on %s' % server.name
+    puts 'VM cooked on %s' % vm.name
 
     # This lets you SSH to the image and check it out for testing.  A ^C will
     # release the floating-ip, but not destroy the image.
@@ -27,10 +27,10 @@ def cook server
 end
 
 ##
-# Creates an image called +name+ from +server+
+# Creates an image called +name+ from +vm+
 
-def create_image server, name
-  response = @compute.create_image server.id, 'gauntlet'
+def create_image vm, name
+  response = @compute.create_image vm.id, 'gauntlet'
   image = @compute.images.get response.body['image']['id']
 
   image.wait_for do
@@ -38,19 +38,19 @@ def create_image server, name
     image.ready?
   end
 
-  puts 'image %s created from %s' % [name, server.name]
+  puts 'image %s created from %s' % [name, vm.name]
 end
 
 ##
-# Creates a temporary server sending +params+ to Fog's
-# <code>server.create</code>
+# Creates a temporary vm sending +params+ to Fog's
+# <code>vm.create</code>
 
-def create_temporary_server **params
-  server = @compute.servers.create params
+def create_temporary_vm **params
+  vm = @compute.servers.create params
 
-  yield server
+  yield vm
 ensure
-  server.destroy if server
+  vm.destroy if vm
 end
 
 ##
@@ -66,7 +66,7 @@ end
 # Attempts to connect to +address+ on port 22.  Returns true if the connection
 # succeeds.
 #
-# Used to wait for SSH to come up after OpenStack says the server is alive
+# Used to wait for SSH to come up after OpenStack says the address is alive
 
 def ssh_alive? address
   socket = TCPSocket.open address, 22
@@ -84,62 +84,75 @@ def trace *items
 end
 
 ##
-# Waits for +server+ to boot
+# Waits for +vms+ to boot in threads
 
-def wait_for_server server
-  server.wait_for do
+def wait_for_vms vms
+  vms.map do |vm|
+    Thread.start do
+      wait_for_vm vm
+    end
+  end.each do |thread|
+    thread.join
+  end
+end
+
+##
+# Waits for +vm+ to boot
+
+def wait_for_vm vm
+  vm.wait_for do
     print '.'
 
     # When there's an ERROR fog merrily continues to check for readiness even
     # when it will never happen.  Destroy the image and return the fault
     # instead.
-    if server.state == 'ERROR' then
-      server.destroy
-      abort server.fault.inspect
+    if vm.state == 'ERROR' then
+      vm.destroy
+      abort vm.fault.inspect
     end
 
     ready?
   end
 
-  puts 'server %s booted' % server.name
+  puts 'VM %s booted' % vm.name
 end
 
 ##
-# Waits for +server+ to be accessible via SSH at +address+
+# Waits for +vm+ to be accessible via SSH at +address+
 
-def wait_for_ssh server, address
-  server.wait_for do
+def wait_for_ssh vm, address
+  vm.wait_for do
     print '.'
 
     ssh_alive? address
   end
 
   puts
-  puts 'server %s SSH accessible at %s' % [server.name, address]
+  puts 'VM %s SSH accessible at %s' % [vm.name, address]
 end
 
 ##
-# Attaches a floating IP to +server+ for the duration of a block and removes
+# Attaches a floating IP to +vm+ for the duration of a block and removes
 # the floating IP when the block terminates.
 #
 # This prevents you from needing to clean up tens of floating IPs as you test
 # out chef recipes
 
-def with_floating_ip server
-  service  = server.service
+def with_floating_ip vm
+  service  = vm.service
   response = service.allocate_address
   id       = response.body['floating_ip']['id']
   address  = response.body['floating_ip']['ip']
 
   begin
-    server.associate_address address
+    vm.associate_address address
 
     yield address
 
   ensure
     puts "Exception: #{$!}" if $!
     $stdin.gets if $!
-    service.disassociate_address server.id, address
+    service.disassociate_address vm.id, address
     service.release_address id
   end
 end

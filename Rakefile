@@ -1,4 +1,5 @@
 import 'tasks/clean.rake'
+import 'tasks/cluster.rake'
 import 'tasks/configuration.rake'
 import 'tasks/chef/node/image.rake'
 import 'tasks/chef/role/image.rake'
@@ -8,5 +9,6 @@ import 'tasks/fog/flavors.rake'
 import 'tasks/fog/images.rake'
 import 'tasks/fog/security_groups.rake'
 import 'tasks/fog/ssh_key.rake'
+import 'tasks/fog/vms.rake'
 import 'tasks/utilities.rake'
 

@@ -40,17 +40,17 @@ namespace :fog do
 
       trace "using flavor #{fog_flavor.name} (#{fog_flavor.id})"
 
-      create_temporary_server(
+      create_temporary_vm(
         name:            image_configuration['name'],
         image_ref:       fog_image.id,
         flavor_ref:      fog_flavor.id,
         key_name:        @ssh_key_name,
-        security_groups: @configuration['security_groups'].keys) do |server|
-        trace "booting #{server.name} (#{server.id})"
+        security_groups: @configuration['security_groups'].keys) do |vm|
+        trace "booting #{vm.name} (#{vm.id})"
 
-        cook server
+        cook vm
 
-        create_image server, image_name
+        create_image vm, image_name
       end
     end
   end
