@@ -10,7 +10,7 @@ task local_gems: 'configuration:load' do
     package = local_gem_package name
 
     cd "../#{name}" do
-      sh $PROGRAM_NAME, 'clean', 'package'
+      sh $PROGRAM_NAME, '--silent', 'clean', 'package'
 
       package = Dir["pkg/#{name}*.gem"].first
 
