@@ -53,6 +53,19 @@ namespace :fog do
         create_image vm, image_name
       end
     end
+
+    desc 'deletes the created image'
+    task delete: %w[
+           configuration:load
+           fog:images] do
+      image_name = @configuration['image']['name']
+
+      image = @images.find do |image| image.name == image_name end
+
+      next unless image
+
+      image.destroy
+    end
   end
 end
 
