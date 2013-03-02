@@ -25,7 +25,7 @@ namespace :fog do
 
         puts '%-35s %-10s %15s %15s' % [
           vm.name, flavor.name,
-          private_addrs.first, public_addrs.first
+          public_addrs.first, private_addrs.first,
         ]
       end
     end
