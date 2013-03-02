@@ -7,22 +7,13 @@ def cook vm
   with_floating_ip vm do |address|
     wait_for_ssh vm, address
 
+    remote = "#{user}@#{address}"
+
     user = @configuration['image']['login_user']
 
-    # This is knife stuff.  You can put any script after these lines
-    run_knife %W[solo prepare #{user}@#{address}]
-    puts 'VM prepared on %s' % vm.name
+    run_knife %W[solo prepare #{remote}]
 
-#    run_knife %W[cook -V --skip-syntax-check root@#{address} nodes/upgrade.json]
-#    puts 'chef upgraded to prerelease'
-
-    run_knife %W[solo cook -V #{user}@#{address} nodes/image.json]
-    puts 'VM cooked on %s' % vm.name
-
-    # This lets you SSH to the image and check it out for testing.  A ^C will
-    # release the floating-ip, but not destroy the image.
-    puts "VM built on #{address}, press return to continue"
-    $stdin.gets
+    run_knife %W[solo cook -V #{remote} nodes/image.json]
   end
 end
 
