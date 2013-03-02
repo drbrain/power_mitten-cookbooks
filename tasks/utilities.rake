@@ -54,6 +54,19 @@ ensure
 end
 
 ##
+# Finds a VM with +name+
+
+def find_vm name
+  abort "provide a vm name like for this task" unless name
+
+  vm = @vms.find { |vm| name == vm.name }
+
+  abort "unable to find vm #{name}, check fog:vms:list" unless vm
+
+  vm
+end
+
+##
 # Runs knife for `knife cook` and `knife solo`
 
 def run_knife args

@@ -1,4 +1,71 @@
 namespace :cluster do
+  desc 'checks the cluster configuration'
+  task check_configuration: %w[
+         configuration:load
+         fog:flavors] do
+    cluster = @configuration['cluster']
+
+    missing_flavors = cluster.select do |node_definition|
+      node_name   = node_definition['name']
+      flavor_name = node_definition['flavor']
+
+      @flavors.none? { |flavor| flavor.name == flavor_name }
+    end
+
+    unless missing_flavors.empty? then
+      message = missing_flavors.sort_by { |node_definition|
+        node_definition['name']
+      }.map { |node_definition|
+        flavor_name, name = node_definition.values_at 'flavor', 'name'
+        "\tflavor #{flavor_name} missing for #{name}"
+      }.join "\n"
+
+      abort "missing flavors:\n#{message}"
+    end
+  end
+
+  desc 'attach to the cluster console'
+  task console: %w[
+         configuration:load
+         fog:vms] do
+    user = @configuration['image']['login_user']
+
+    console = @vms.find { |vm| /\Agauntlet_console-\d+\z/ =~ vm.name }
+
+    abort 'unable to find console, did you start the cluster?' unless console
+
+    ssh console, user, 'sh', '-l', '-c', 'gauntlet_console'
+  end
+
+  desc 'create a shell on [vm_name]'
+  task :shell, %w[vm_name] => %w[
+         configuration:load
+         fog:vms] do |_, args|
+    user = @configuration['image']['login_user']
+    vm   = find_vm args[:vm_name]
+
+    ssh vm, user
+  end
+
+  desc 'shut down the cluster'
+  task shutdown: %w[
+         configuration:load
+         fog:vms] do
+    cluster = @configuration['cluster']
+
+    cluster.each do |node_definition|
+      name = node_definition['name']
+
+      name_regexp = /\A#{Regexp.escape name}-\d+\z/
+
+      @vms.each do |vm|
+        next unless name_regexp =~ vm.name
+
+        vm.destroy
+      end
+    end
+  end
+
   desc 'starts the cluster'
   task start: %w[
          configuration:load
@@ -47,60 +114,5 @@ namespace :cluster do
     end
   end
 
-  desc 'checks the cluster configuration'
-  task check_configuration: %w[
-         configuration:load
-         fog:flavors] do
-    cluster = @configuration['cluster']
-
-    missing_flavors = cluster.select do |node_definition|
-      node_name   = node_definition['name']
-      flavor_name = node_definition['flavor']
-
-      @flavors.none? { |flavor| flavor.name == flavor_name }
-    end
-
-    unless missing_flavors.empty? then
-      message = missing_flavors.sort_by { |node_definition|
-        node_definition['name']
-      }.map { |node_definition|
-        flavor_name, name = node_definition.values_at 'flavor', 'name'
-        "\tflavor #{flavor_name} missing for #{name}"
-      }.join "\n"
-
-      abort "missing flavors:\n#{message}"
-    end
-  end
-
-  desc 'attach to the cluster console'
-  task console: %w[
-         configuration:load
-         fog:vms] do
-    user = @configuration['image']['login_user']
-
-    console = @vms.find { |vm| /\Agauntlet_console-\d+\z/ =~ vm.name }
-
-    abort 'unable to find console, did you start the cluster?' unless console
-
-    ssh console, user, 'sh', '-l', '-c', 'gauntlet_console'
-  end
-
-  desc 'create a shell on the given VM'
-  task :shell, %w[vm_name] => %w[
-         configuration:load
-         fog:vms] do |_, args|
-    vm_name = args[:vm_name]
-
-    abort "provide a vm name like: rake fog:cred:... cluster:shell[NAME]" unless
-      vm_name
-
-    user = @configuration['image']['login_user']
-
-    vm = @vms.find { |vm| vm_name == vm.name }
-
-    abort "unable to find vm #{vm_name}, check fog:vms:list" unless vm
-
-    ssh vm, user
-  end
 end
 
