@@ -12,10 +12,19 @@ cookbook_file '/tmp/att-cloud_gauntlet.gem' do
   mode 0644
 end
 
+bash 'remove att-cloud_gauntlet' do
+  user 'root'
+
+  code <<-CODE
+#{node['gem_path']} uninstall att-cloud_gauntlet
+  CODE
+end
+
 gem_package 'att-cloud_gauntlet' do
   gem_binary node['gem_path']
   source '/tmp/att-cloud_gauntlet.gem'
   version '>= 0'
+  action :install
 end
 
 [
