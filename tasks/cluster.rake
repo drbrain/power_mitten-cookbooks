@@ -27,7 +27,7 @@ namespace :cluster do
   desc 'attach to the cluster console'
   task console: %w[
          configuration:load
-         fog:vms] do
+         cluster:start] do
     user = @configuration['image']['login_user']
 
     console = @vms.find { |vm| /\Agauntlet_console-\d+\z/ =~ vm.name }
