@@ -71,5 +71,36 @@ namespace :cluster do
       abort "missing flavors:\n#{message}"
     end
   end
+
+  desc 'attach to the cluster console'
+  task console: %w[
+         configuration:load
+         fog:vms] do
+    user = @configuration['image']['login_user']
+
+    console = @vms.find { |vm| /\Agauntlet_console-\d+\z/ =~ vm.name }
+
+    abort 'unable to find console, did you start the cluster?' unless console
+
+    ssh console, user, 'sh', '-l', '-c', 'gauntlet_console'
+  end
+
+  desc 'create a shell on the given VM'
+  task :shell, %w[vm_name] => %w[
+         configuration:load
+         fog:vms] do |_, args|
+    vm_name = args[:vm_name]
+
+    abort "provide a vm name like: rake fog:cred:... cluster:shell[NAME]" unless
+      vm_name
+
+    user = @configuration['image']['login_user']
+
+    vm = @vms.find { |vm| vm_name == vm.name }
+
+    abort "unable to find vm #{vm_name}, check fog:vms:list" unless vm
+
+    ssh vm, user
+  end
 end
 

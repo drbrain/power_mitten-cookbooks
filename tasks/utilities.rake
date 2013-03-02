@@ -63,6 +63,18 @@ def run_knife args
 end
 
 ##
+# Attaches a floating ip to +vm+ as +user+ and runs SSH with the given
+# +command+
+
+def ssh vm, user, *command
+  with_floating_ip vm do |address|
+    wait_for_ssh vm, address, quiet: true
+
+    system 'ssh', "#{user}@#{address}", *command
+  end
+end
+
+##
 # Attempts to connect to +address+ on port 22.  Returns true if the connection
 # succeeds.
 #
@@ -120,12 +132,14 @@ end
 ##
 # Waits for +vm+ to be accessible via SSH at +address+
 
-def wait_for_ssh vm, address
+def wait_for_ssh vm, address, quiet: false
   vm.wait_for do
-    print '.'
+    print '.' unless quiet
 
     ssh_alive? address
   end
+
+  return if quiet
 
   puts
   puts 'VM %s SSH accessible at %s' % [vm.name, address]
