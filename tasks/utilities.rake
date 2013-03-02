@@ -159,16 +159,19 @@ end
 def with_floating_ip vm
   service  = vm.service
   response = service.allocate_address
-  id       = response.body['floating_ip']['id']
-  address  = response.body['floating_ip']['ip']
-
   begin
-    vm.associate_address address
+    id       = response.body['floating_ip']['id']
+    address  = response.body['floating_ip']['ip']
 
-    yield address
+    begin
+      vm.associate_address address
 
+      yield address
+
+    ensure
+      service.disassociate_address vm.id, address
+    end
   ensure
-    service.disassociate_address vm.id, address
     service.release_address id
   end
 end
