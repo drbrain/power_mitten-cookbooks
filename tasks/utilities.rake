@@ -177,8 +177,6 @@ def with_floating_ip vm
     yield address
 
   ensure
-    puts "Exception: #{$!}" if $!
-    $stdin.gets if $!
     service.disassociate_address vm.id, address
     service.release_address id
   end
