@@ -10,7 +10,7 @@ namespace :fog do
     task list: 'fog:images' do
       puts '%-71s  Ready' % 'Image Name' if $stdout.tty?
 
-      @images.each do |image|
+      @images.sort_by { |image| image.name }.each do |image|
         puts '%-72s %-5s' % [image.name, image.ready?]
       end
     end
@@ -50,7 +50,9 @@ namespace :fog do
 
         cook vm
 
-        create_image vm, image_name
+        image = create_image vm, image_name
+
+        @images << image
       end
     end
 

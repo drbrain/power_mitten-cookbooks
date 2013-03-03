@@ -7,9 +7,9 @@ def cook vm
   with_floating_ip vm do |address|
     wait_for_ssh vm, address
 
-    remote = "#{user}@#{address}"
-
     user = @configuration['image']['login_user']
+
+    remote = "#{user}@#{address}"
 
     run_knife %W[solo prepare #{remote}]
 
@@ -30,6 +30,8 @@ def create_image vm, name
   end
 
   puts 'image %s created from %s' % [name, vm.name]
+
+  image
 end
 
 ##
