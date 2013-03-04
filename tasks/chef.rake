@@ -1,4 +1,5 @@
 namespace :chef do
+  desc 'runs chef solo cook on [vm_name]'
   task :cook, %w[vm_name] => %w[
          configuration:load
          local_gems
