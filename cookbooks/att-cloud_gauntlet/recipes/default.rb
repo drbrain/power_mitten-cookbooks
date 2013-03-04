@@ -28,11 +28,12 @@ gem_package 'att-cloud_gauntlet' do
 end
 
 [
-  ['gauntlet_control', ''],
-  ['checksummer',      '--workers 16'],
-  ['gem_downloader',   '--workers 16'],
-  ['rdocer',           '--workers 3'],
-  ['startup',          ''],
+  ['checksummer',          ''],
+  ['gauntlet_control',     ''],
+  ['gauntlet_ring_server', ''],
+  ['gem_downloader',       ''],
+  ['rdocer',               ''],
+  ['startup',              ''],
 ].each do |service, extra_args|
   template "/etc/init.d/#{service}" do
     source 'init.d/service.erb'

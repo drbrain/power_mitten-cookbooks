@@ -13,12 +13,3 @@ gem_package 'RingyDingy' do
   action :upgrade
 end
 
-template '/etc/init.d/ring_server' do
-  source 'init.d/service.erb'
-  mode 0755
-  owner 'root'
-  group 'root'
-
-  variables ruby_path: node['ruby_path'], prog: 'ring_server'
-end
-
