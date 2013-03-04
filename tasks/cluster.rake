@@ -34,7 +34,7 @@ namespace :cluster do
 
     abort 'unable to find console, did you start the cluster?' unless console
 
-    ssh console, user, 'sh', '-l', '-c', 'gauntlet_console'
+    ssh console, user, '-t', 'sh', '-l', '-c', 'gauntlet_console'
   end
 
   desc 'create a shell on [vm_name]'
