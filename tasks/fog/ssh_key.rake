@@ -17,7 +17,7 @@ namespace :fog do
       @ssh_key_name = ssh_key_name.sub(/_(dsa|ecdsa|rsa)$/, '')
 
       unless @compute.key_pairs.any? { |pair| pair.name == @ssh_key_name } then
-        public_key = File.read SSH_KEY
+        public_key = File.read ssh_key
 
         key_pair =
           @compute.key_pairs.new name: @ssh_key_name, public_key: public_key
