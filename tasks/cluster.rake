@@ -30,7 +30,7 @@ namespace :cluster do
          cluster:start] do
     user = @configuration['image']['login_user']
 
-    console = @vms.find { |vm| /\Agauntlet_console-\d+\z/ =~ vm.name }
+    console = @vms.find { |vm| /\AConsole-\d+\z/ =~ vm.name }
 
     abort 'unable to find console, did you start the cluster?' unless console
 
@@ -80,7 +80,7 @@ namespace :cluster do
       name, flavor_name, total =
         node_definition.values_at 'name', 'flavor', 'count'
 
-      name_regexp = /\A#{Regexp.escape name}-(?<count>\d+)\z/
+      name_regexp = /\A#{Regexp.escape name}-(\d+)\z/
 
       running = @vms.select { |vm| name_regexp =~ vm.name }
 
@@ -93,10 +93,10 @@ namespace :cluster do
       flavor = @flavors.find { |flavor| flavor.name == flavor_name }
       image  = @images.find { |image| image.name == image_name }
 
-      highest = running.max_by { |vm|
+      highest = running.map { |vm|
         name_regexp =~ vm.name
-        Integer count
-      } || 0
+        1 + Integer($1)
+      }.max || 0
 
       vms = needed.times.map do |offset|
         vm_name = "#{name}-#{offset + highest}"
