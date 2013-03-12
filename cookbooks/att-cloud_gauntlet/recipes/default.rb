@@ -31,6 +31,7 @@ end
   ['checksummer',          ''],
   ['gauntlet_control',     ''],
   ['gauntlet_ring_server', ''],
+  ['gem_dependencies',     ''],
   ['gem_downloader',       ''],
   ['rdocer',               ''],
   ['startup',              ''],
