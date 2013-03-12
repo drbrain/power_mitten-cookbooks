@@ -9,7 +9,9 @@
 
 ruby_version = node['ruby_version']
 
-ruby_build_ruby ruby_version
+ruby_build_ruby ruby_version do
+  environment 'CONFIGURE_OPTS' => '--disable-install-doc'
+end
 
 ruby_path = 
   File.join node['ruby_build']['default_ruby_base_path'], ruby_version
