@@ -21,7 +21,7 @@ end
 # Creates an image called +name+ from +vm+
 
 def create_image vm, name
-  response = @compute.create_image vm.id, 'gauntlet'
+  response = @compute.create_image vm.id, name
   image = @compute.images.get response.body['image']['id']
 
   image.wait_for do

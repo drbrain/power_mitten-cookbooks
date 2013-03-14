@@ -7,8 +7,8 @@
 # All rights reserved - Do Not Redistribute
 #
 
-template '/home/ubuntu/.gauntlet_control' do
-  source 'dot_gauntlet_control.erb'
+template '/home/ubuntu/.power_mitten' do
+  source 'dot_power_mitten.erb'
 
   owner 'ubuntu'
   group 'ubuntu'

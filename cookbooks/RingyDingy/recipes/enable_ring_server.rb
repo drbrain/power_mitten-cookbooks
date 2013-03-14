@@ -1,5 +1,5 @@
 #
-# Cookbook Name:: att-cloud_gauntlet
+# Cookbook Name:: RingyDingy
 # Recipe:: enable_rdocer
 #
 # Copyright 2012, AT&T
