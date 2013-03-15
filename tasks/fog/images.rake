@@ -19,6 +19,7 @@ namespace :fog do
     task create: %w[
            configuration:load
            chef:role:image
+           local_gems
            fog:flavors
            fog:images
            fog:security_groups:create
