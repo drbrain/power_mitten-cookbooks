@@ -26,11 +26,18 @@ namespace :fog do
     abort <<-MESSAGE unless @compute
 You must invoke a fog credentials task when using this recipe.  For example:
 
-  rake fog:whatever ssh_key
+  rake fog:cred:whatever ssh_key
     MESSAGE
   end
 
   namespace :cred do
+    # This creates a credential-loading task for each of your credential
+    # entries in ~/.fog.
+    #
+    # To enforce use of fog credentials depend on fog:compute in your rake
+    # tasks.  The task will abort with a helpful message if the user forgot to
+    # load their credentials.
+
     fog_credentials.each_key do |credential_name|
       desc "use #{credential_name} fog credentials"
       task credential_name do
