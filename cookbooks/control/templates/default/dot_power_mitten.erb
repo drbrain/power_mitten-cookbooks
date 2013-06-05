@@ -2,7 +2,12 @@
 swift_uri: <%= @swift_uri %>
 swift_username: <%= @swift_username %>
 swift_key: <%= @swift_key %>
+
 openstack_api_key:  <%= @openstack_api_key %>
 openstack_auth_url: <%= @openstack_auth_url %>
 openstack_tenant:   <%= @openstack_tenant %>
 openstack_username: <%= @openstack_username %>
+
+<% @extra.each do |key, value| %>
+<%= key %>: <%= value %>
+<% end %>

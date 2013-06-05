@@ -22,6 +22,8 @@ template '/home/ubuntu/.power_mitten' do
     openstack_api_key:  node['credentials']['openstack_api_key'],
     openstack_auth_url: node['credentials']['openstack_auth_url'],
     openstack_tenant:   node['credentials']['openstack_tenant'],
-    openstack_username: node['credentials']['openstack_username']
+    openstack_username: node['credentials']['openstack_username'],
+
+    extra: node['extra_configuration']
 end
 
