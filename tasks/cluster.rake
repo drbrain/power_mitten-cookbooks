@@ -5,7 +5,12 @@ namespace :cluster do
          fog:flavors] do
     cluster = @configuration['cluster']
 
+    abort 'cluster must be an Array' unless Array === cluster
+
     missing_flavors = cluster.select do |node_definition|
+      abort 'node entry in cluster must be a Hash' unless
+        Hash === node_definition
+
       node_name   = node_definition['name']
       flavor_name = node_definition['flavor']
 
@@ -14,7 +19,11 @@ namespace :cluster do
 
     unless missing_flavors.empty? then
       message = missing_flavors.sort_by { |node_definition|
-        node_definition['name']
+        begin
+          node_definition['name']
+        rescue
+          abort 'key "name" missing in cluster definition'
+        end
       }.map { |node_definition|
         flavor_name, name = node_definition.values_at 'flavor', 'name'
         "\tflavor #{flavor_name} missing for #{name}"

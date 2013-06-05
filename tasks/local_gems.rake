@@ -6,7 +6,9 @@ desc 'builds local gems'
 task local_gems: 'configuration:load' do
   pwd = File.expand_path Dir.pwd
 
-  @configuration['local_gems'].each do |name|
+  local_gems = @configuration['local_gems']
+
+  local_gems.each do |name|
     package = local_gem_package name
 
     cd "../#{name}" do
