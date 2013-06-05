@@ -8,8 +8,10 @@ namespace :chef do
 end
 
 file 'roles/image.json' => %w[fog:compute configuration:load] do
-  credentials = @configuration['extra_credentials']
-  credentials = credentials.merge @fog_credentials
+  extra_configuration = @configuration['extra_configuration']
+  extra_configuration ||= {}
+
+  credentials = @configuration['credentials']
 
   definition = {
     'chef_type' => 'role',
@@ -20,7 +22,8 @@ file 'roles/image.json' => %w[fog:compute configuration:load] do
 
     'default_attributes' => {
       'ruby_version' => @configuration['ruby_version'],
-      'credentials' => credentials
+      'credentials' => credentials,
+      'extra_configuration' => extra_configuration,
     },
 
     'run_list' => @configuration['run_list'],
